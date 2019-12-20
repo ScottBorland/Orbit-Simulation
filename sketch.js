@@ -7,7 +7,7 @@ var planetGravityScaler = 1;
 particles = []
 planets = []
 
-var spawnParticles = false;
+var spawnParticles = true;
 
 //perlin noise variables
 var xr = 0.0;
@@ -29,16 +29,16 @@ function setup() {
   //this can be played around with, scale is between 1 and 4, fallout is from 0 to 1. (4, 1) gives a very washed out look. (2, 0.2) seems the best so far.
   noiseDetail(2, 0.2);
 
-  planets.push(new planet(400, 200, 10))
-  planets.push(new planet(600, 200, 10))
-  planets.push(new planet(500, 400, 10))
+  // planets.push(new planet(400, 200, 10))
+  // planets.push(new planet(600, 200, 10))
+  // planets.push(new planet(500, 400, 10))
 
   particles.push(new particle(330, 200, 2, -7))
   particles.push(new particle(500, 100, 4, 6))
 
-  /*for(var i = 0; i < 4; i++){
+  for(var i = 0; i < 4; i++){
     planets.push(new planet(random(windowWidth - 400), random(windowHeight - 400), random(20)))
-  }*/
+  }
 }
 
 function draw() {
@@ -62,7 +62,7 @@ function draw() {
   if(counter > 100){
       counter = 0
   }
-  if(spawnParticles){
+  if(spawnParticles && counter % 10 == 0){
     particles.push(new particle(random(width), random(height), random(5), random(5)))
   }
   /*
@@ -85,8 +85,8 @@ function windowResized() {
   resizeCanvas(windowWidth -15, windowHeight - 200)
 }
 
-function mouseDragged(){
-    if(mouseButton === LEFT && counter % 3 == 0){
+function mousePressed(){
+    if(mouseButton === LEFT && counter % 1 == 0){
         let newParticle = new particle(mouseX, mouseY, random(5), random(5))
         particles.push(newParticle)
     }
@@ -154,7 +154,8 @@ function particle(x, y, velX, velY){
   //let c = color(r, g, b)
   //stroke(c)
   if(this.lifetime < 600){
-    stroke(0);
+    let c = color(128, 128, 128, 100)
+    stroke(c);
   }
   else if(this.lifetime > 600 && this.lifetime < 1200){
     stroke(255, 100, 100)
