@@ -3,7 +3,7 @@ var strengthToSizeScaler = 3;
 function planet(x, y, strength, redrawn){
   this.position = createVector(x, y)
   this.strength = strength
-  
+
   this.redrawn = redrawn
   if(!this.redrawn){
   this.colour = color(random(255), random(255), random(255))

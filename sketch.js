@@ -1,4 +1,5 @@
 var worldCamera
+var offset;
 
 var counter = 100;
 
@@ -30,7 +31,7 @@ var iG = 1
 var speed = 0.04
 
 function setup() {
-  createCanvas(windowWidth, windowHeight)
+  createCanvas(1920, 1080)
   background(255)
 
   //worldCamera = new Camera()
@@ -46,15 +47,19 @@ function setup() {
   //particles.push(new particle(500, 100, 4, 6))
 
   for(var i = 0; i < 3; i++){
-    planets.push(new planet(random(400, windowWidth - 400), random(400, windowHeight-400), random(20), false))
+    planets.push(new planet(random(200, windowWidth - 200), random(200, windowHeight-200), random(20), false))
   }
+  offset = createVector(0, 0)
 }
 
 function draw() {
-  //translate(-worldCamera.pos.x, -worldCamera.pos.y);
-  //worldCamera.draw();
 
-  //camera(0, 0, 20 + sin(frameCount * 0.01) * 10, 0, 0, 0, 0, 1, 0);
+  if(!analysisMode){
+    //translate(width / 2, height / 2);
+    scale(0.8)
+  }else{
+    scale(0.8)
+  }
 
   for(var i = 0; i < particles.length; i++){
     if(particles[i].destroy){
@@ -67,6 +72,7 @@ function draw() {
     //particles[i].edges()
     particles[i].display()
   }
+
   for(var i = 0; i < planets.length; i++){
     planets[i].display()
     planets[i].applyGravity()
@@ -76,9 +82,9 @@ function draw() {
       counter = 0
   }
   if(spawnParticles && counter % 3 == 0){
-    particles.push(new particle(random(400, width-400), random(400, height-400), random(5), random(5), false))
+    particles.push(new particle(random(400, windowWidth -400), random(400, windowHeight -400), random(5), random(5), false))
   }
-  /*
+
   //perlin noise
   var rx = xr + iR;
   var gx = xg + iG;
@@ -91,9 +97,8 @@ function draw() {
   xr += speed;
   xg += speed;
   xb += speed;
-  */
-  translate(planets[0].x, planets[0].y)
-  scale(0.5)
+
+
 }
 
 function windowResized() {
@@ -107,12 +112,11 @@ function windowResized() {
     }
 }*/
 
-function mousePressed(){
-  if(mouseButton === LEFT){
+function analyse(){
     analysisMode = true
     planets.splice(0, planets.length)
     particles.splice(0, particles.length)
-    background(51)
+    background(0, 0, 0)
     spawnParticles = false;
     for(var i = 0; i < planetData.length; i++){
       let newPlanet = new planet(planetData[i][0].x, planetData[i][0].y, planetData[i][1], true)
@@ -124,12 +128,11 @@ function mousePressed(){
       let newParticle = new particle(particleData[i][0].x, particleData[i][0].y, particleData[i][1].x, particleData[i][1].y, true)
       particleWaitingList.push(newParticle)
     }
-  }
 }
 
 function keyPressed(){
-    if(keyCode == UP_ARROW && analysisMode){
-      background(51)
+    if(keyCode == 78 && analysisMode){
+      background(0, 0, 0)
       planets.splice(0, planets.length)
       particles.splice(0, particles.length)
       for(var i = 0; i < planetData.length; i++){
@@ -139,9 +142,14 @@ function keyPressed(){
       }
       if(particleWaitingList.length > 1){
       particles.push(particleWaitingList[0])
+      console.log(particles)
       particleWaitingList.splice(0, 1)
+    }else{
+      console.log("Empty waiting list")
     }
-    }
+  }else if(keyCode == 82){
+    analyse()
+  }
 }
 
 
@@ -158,6 +166,9 @@ function particle(x, y, velX, velY, redrawn){
   this.logged = false
   this.data = []
   this.data.push(this.position)
+  if(this.position.y < 100){
+    console.log("bug")
+  }
   this.data.push(this.velocity)
   }else{
     this.logged = true
@@ -184,7 +195,7 @@ function particle(x, y, velX, velY, redrawn){
   }
 
   this.applyForce = function(force){
-    if(force.mag() > 100 || (force.mag() != 0 && force.mag() < 0.0003)){
+    if(force.mag() > 100 || (force.mag() != 0 && force.mag() < 0.0008)){
       this.destroy = true
     }
     this.acceleration.add(force)
@@ -192,33 +203,19 @@ function particle(x, y, velX, velY, redrawn){
 
   this.display = function(){
 
-  /*
-  var angle = this.velocity.heading() + PI / 2
-  push()
-  translate(this.position.x, this.position.y)
-  rotate(angle)
-  fill(103, 47, 138)
-  stroke(103, 47, 138)
-  strokeWeight(1)
-  beginShape()
-  vertex(0, -5)
-  vertex(-2.5, 5)
-  vertex(2.5, 5)
-  endShape(CLOSE)
-  pop()
-
-  */
+  //translate(offset)
   if(this.trail.length > 1){
   let index = this.trail.length - 1
   if(this.redrawn){
-    stroke(this.randomColour)
+    let c = color(r, g, b)
+    stroke(c)
+    //stroke(this.randomColour)
   }else{
     stroke(128, 128, 128, 50)
   }
 
   line(this.position.x, this.position.y, this.trail[index].x, this.trail[index].y)
-  //let c = color(r, g, b)
-  //stroke(c)
+
   if(!this.redrawn){
   if(this.lifetime < 600){
     let c = color(128, 128, 128, 50)
@@ -231,9 +228,10 @@ function particle(x, y, velX, velY, redrawn){
   }else if(this.lifetime > 2000){
     stroke(this.randomColour)
   }
-  if(this.lifetime > 5000 && this.logged == false){
+  if(this.lifetime > 3000 && this.logged == false){
     console.log("successful orbit")
     particleData.push(this.data)
+    console.log(particleData)
     this.logged = true;
   }
   line(this.position.x, this.position.y, this.trail[index].x, this.trail[index].y)
@@ -262,26 +260,26 @@ function particle(x, y, velX, velY, redrawn){
     }
 }
 
-class Camera {
-
-  constructor() {
-    this.pos = createVector(0, 0);
-  }
-
-    draw() {
-    //I used the mouse to move the camera
-    //The mouse's position is always relative to the screen and not the camera's position
-    //E.g. if the mouse is at 1000,1000 then the mouse's position does not add 1000,1000 to keep up with the camera
-    //if (mouseX < 100) pos.x-=5;
-    //else if (mouseX > width - 100) pos.x+=5;
-    // if (mouseY < 100) pos.y-=5;
-    //else if (mouseY > height - 100) pos.y+=5;
-    //I noticed on the web the program struggles to find the mouse so I made it key pressed
-    if (keyPressed) {
-      if (key == 'w') this.pos.y -= 5;
-      if (key == 's') this.pos.y += 5;
-      if (key == 'a') this.pos.x -= 5;
-      if (key == 'd') this.pos.x += 5;
-    }
-  }
-}
+// class Camera {
+//
+//   constructor() {
+//     this.pos = createVector(0, 0);
+//   }
+//
+//     draw() {
+//     //I used the mouse to move the camera
+//     //The mouse's position is always relative to the screen and not the camera's position
+//     //E.g. if the mouse is at 1000,1000 then the mouse's position does not add 1000,1000 to keep up with the camera
+//     //if (mouseX < 100) pos.x-=5;
+//     //else if (mouseX > width - 100) pos.x+=5;
+//     // if (mouseY < 100) pos.y-=5;
+//     //else if (mouseY > height - 100) pos.y+=5;
+//     //I noticed on the web the program struggles to find the mouse so I made it key pressed
+//     if (keyPressed) {
+//       if (key == 'w') this.pos.y -= 5;
+//       if (key == 's') this.pos.y += 5;
+//       if (key == 'a') this.pos.x -= 5;
+//       if (key == 'd') this.pos.x += 5;
+//     }
+//   }
+// }
