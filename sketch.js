@@ -28,7 +28,7 @@ var iB = 100
 var iG = 1
 
 //rate at which perlin noise function is looped through
-var speed = 0.04
+var speed = 0.02
 
 function setup() {
   createCanvas(1920, 1080)
@@ -46,7 +46,7 @@ function setup() {
   //particles.push(new particle(330, 200, 2, -7))
   //particles.push(new particle(500, 100, 4, 6))
 
-  for(var i = 0; i < 3; i++){
+  for(var i = 0; i < 2; i++){
     planets.push(new planet(random(200, windowWidth - 200), random(200, windowHeight-200), random(20), false))
   }
   offset = createVector(0, 0)
