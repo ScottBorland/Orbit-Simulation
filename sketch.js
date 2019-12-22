@@ -28,7 +28,7 @@ var iB = 100
 var iG = 1
 
 //rate at which perlin noise function is looped through
-var speed = 0.04
+var speed = 0.02
 
 function setup() {
   createCanvas(1920, 1080)
@@ -46,7 +46,7 @@ function setup() {
   //particles.push(new particle(330, 200, 2, -7))
   //particles.push(new particle(500, 100, 4, 6))
 
-  for(var i = 0; i < 3; i++){
+  for(var i = 0; i < 2; i++){
     planets.push(new planet(random(200, windowWidth - 200), random(200, windowHeight-200), random(20), false))
   }
   offset = createVector(0, 0)
@@ -82,7 +82,7 @@ function draw() {
       counter = 0
   }
   if(spawnParticles && counter % 3 == 0){
-    particles.push(new particle(random(400, windowWidth -400), random(400, windowHeight -400), random(5), random(5), false))
+    particles.push(new particle(random(400, windowWidth -400), random(400, windowHeight -400), random(-10, 10), random(-10, 10), false))
   }
 
   //perlin noise
@@ -98,7 +98,7 @@ function draw() {
   xg += speed;
   xb += speed;
 
-
+  translate(mouseX, mouseY)
 }
 
 function windowResized() {
@@ -142,7 +142,7 @@ function keyPressed(){
       }
       if(particleWaitingList.length > 1){
       particles.push(particleWaitingList[0])
-      console.log(particles)
+      //console.log(particles)
       particleWaitingList.splice(0, 1)
     }else{
       console.log("Empty waiting list")
@@ -195,7 +195,7 @@ function particle(x, y, velX, velY, redrawn){
   }
 
   this.applyForce = function(force){
-    if(force.mag() > 100 || (force.mag() != 0 && force.mag() < 0.0008)){
+    if(force.mag() > 100 || (force.mag() != 0 && force.mag() < 0.002)){
       this.destroy = true
     }
     this.acceleration.add(force)
@@ -231,7 +231,7 @@ function particle(x, y, velX, velY, redrawn){
   if(this.lifetime > 3000 && this.logged == false){
     console.log("successful orbit")
     particleData.push(this.data)
-    console.log(particleData)
+    //console.log(particleData)
     this.logged = true;
   }
   line(this.position.x, this.position.y, this.trail[index].x, this.trail[index].y)
