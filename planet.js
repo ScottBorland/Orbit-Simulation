@@ -1,38 +1,67 @@
-var strengthToSizeScaler = 3;
+var massToSizeScaler = 3
 
-function planet(x, y, strength, redrawn){
+var speedMultiplier = 1
+var distanceScaler = 1000
+var planetGravityScaler = 1
+
+var g = 100
+//var g = (6.67) * (10^-11)
+
+function planet(x, y, velX, velY, mass /*redrawn*/){
   this.position = createVector(x, y)
-  this.strength = strength
+  this.velocity = createVector(velX, velY)
+  this.mass = mass
 
-  this.redrawn = redrawn
-  if(!this.redrawn){
+  this.acceleration = createVector(0, 0)
+
+  this.maxSpeed = 10
+
+  // this.redrawn = redrawn
+  // if(!this.redrawn){
+  // this.colour = color(random(255), random(255), random(255))
+  // this.data = []
+  // this.data.push(this.position)
+  // this.data.push(this.strength)
+  // this.data.push(this.colour)
+  // planetData.push(this.data)
   this.colour = color(random(255), random(255), random(255))
-  this.data = []
-  this.data.push(this.position)
-  this.data.push(this.strength)
-  this.data.push(this.colour)
-  planetData.push(this.data)
-}
+
+this.update = function(){
+     var pos = createVector(this.position.x, this.position.y)
+     //this.trail.push(pos)
+     this.velocity.add(this.acceleration)
+     this.velocity.mult(speedMultiplier)
+     this.velocity.limit(this.maxSpeed)
+
+     this.position.add(this.velocity)
+     this.acceleration.mult(0)
+     //this.lifetime ++
+   }
 
   this.display = function(){
     stroke(0)
     fill(this.colour)
     ellipseMode(CENTER)
-    ellipse(this.position.x, this.position.y, this.strength * strengthToSizeScaler)
+    ellipse(this.position.x, this.position.y, this.mass * massToSizeScaler)
   }
-  this.applyGravity = function (){
-    for(var i = 0; i < particles.length; i++){
-      var dif = p5.Vector.sub(this.position, particles[i].position)
+
+  this.applyForce = function(force){
+      // if(force.mag() > 100 || (force.mag() != 0 && force.mag() < 0.002)){
+      //   this.destroy = true
+      // }
+      this.acceleration.add(force)
+    }
+
+  this.applyGravity = function (planets){
+    for(var i = 0; i < planets.length; i++){
+      var dif = p5.Vector.sub(this.position, planets[i].position)
       var dist = dif.mag()
-      if(dif.mag() < 20){
-        particles[i].applyForce(createVector(1000, 1000))
-      }else{
 
-      var mag = distanceScaler * planetGravityScaler / (dist * dist)
-
+      //F = -GmM/r2
+      //var mag = distanceScaler * planetGravityScaler / (dist * dist)
+      var mag = (g * this.mass * planets[i].mass) / (dist * dist)
       dif.setMag(mag)
-      particles[i].applyForce(dif)
+      planets[i].applyForce(dif)
+      }
     }
-    }
-  }
 }
