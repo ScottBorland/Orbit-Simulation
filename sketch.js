@@ -132,18 +132,21 @@ function analyse(){
 
 function keyPressed(){
     if(keyCode == 78 && analysisMode){
-      background(0, 0, 0)
-      planets.splice(0, planets.length)
-      particles.splice(0, particles.length)
-      for(var i = 0; i < planetData.length; i++){
-        let newPlanet = new planet(planetData[i][0].x, planetData[i][0].y, planetData[i][1], true)
-        planets.push(newPlanet)
-        planets[i].colour = planetData[i][2]
-      }
+      background(255)
+      //planets.splice(0, planets.length)
+      //particles.splice(0, particles.length)
+      // for(var i = 0; i < planetData.length; i++){
+      //   let newPlanet = new planet(planetData[i][0].x, planetData[i][0].y, planetData[i][1], true)
+      //   planets.push(newPlanet)
+      //   planets[i].colour = planetData[i][2]
+      // }
       if(particleWaitingList.length > 1){
-      particles.push(particleWaitingList[0])
-      console.log(particles)
-      particleWaitingList.splice(0, 1)
+      // particles.push(particleWaitingList[0])
+      // console.log(particles)
+      // particleWaitingList.splice(0, 1)
+      for(var i = 0; i < particleWaitingList.length; i++){
+        particles.push(particleWaitingList[i]);
+      }
     }else{
       console.log("Empty waiting list")
     }
@@ -207,9 +210,11 @@ function particle(x, y, velX, velY, redrawn){
   if(this.trail.length > 1){
   let index = this.trail.length - 1
   if(this.redrawn){
-    let c = color(r, g, b)
-    stroke(c)
-    //stroke(this.randomColour)
+    //Perlin Noise Colour:
+    // let c = color(r, g, b)
+    // stroke(c)
+
+    stroke(this.randomColour)
   }else{
     stroke(128, 128, 128, 50)
   }
