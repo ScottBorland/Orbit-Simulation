@@ -46,7 +46,7 @@ function setup() {
   //particles.push(new particle(330, 200, 2, -7))
   //particles.push(new particle(500, 100, 4, 6))
 
-  for(var i = 0; i < 3; i++){
+  for(var i = 0; i < 2; i++){
     planets.push(new planet(random(200, windowWidth - 200), random(200, windowHeight-200), random(20), false))
   }
   offset = createVector(0, 0)
@@ -116,7 +116,7 @@ function analyse(){
     analysisMode = true
     planets.splice(0, planets.length)
     particles.splice(0, particles.length)
-    background(0, 0, 0)
+    background(255)
     spawnParticles = false;
     for(var i = 0; i < planetData.length; i++){
       let newPlanet = new planet(planetData[i][0].x, planetData[i][0].y, planetData[i][1], true)
@@ -133,21 +133,25 @@ function analyse(){
 function keyPressed(){
     if(keyCode == 78 && analysisMode){
       background(255)
-      //planets.splice(0, planets.length)
-      //particles.splice(0, particles.length)
-      // for(var i = 0; i < planetData.length; i++){
-      //   let newPlanet = new planet(planetData[i][0].x, planetData[i][0].y, planetData[i][1], true)
-      //   planets.push(newPlanet)
-      //   planets[i].colour = planetData[i][2]
+      //Add succesful particles one at a time:
+      if(particleWaitingList.length > 3){
+      particles.push(particleWaitingList[0])
+      particles.push(particleWaitingList[1])
+      particles.push(particleWaitingList[2])
+      particleWaitingList.splice(0, 3)
+
+      //Add all succesful particles at once
+      // if(particleWaitingList.length > 1){
+      //  particles.push(particleWaitingList[0])
+      //  console.log(particles)
+      //  particleWaitingList.splice(0, 1)
+      // for(var i = 0; i < particleWaitingList.length; i++){
+      //   particles.push(particleWaitingList[i]);
       // }
-      if(particleWaitingList.length > 1){
-      // particles.push(particleWaitingList[0])
-      // console.log(particles)
-      // particleWaitingList.splice(0, 1)
+    }else{
       for(var i = 0; i < particleWaitingList.length; i++){
         particles.push(particleWaitingList[i]);
       }
-    }else{
       console.log("Empty waiting list")
     }
   }else if(keyCode == 82){
@@ -230,10 +234,10 @@ function particle(x, y, velX, velY, redrawn){
     stroke(128, 128, 128, 100)
   } else if(this.lifetime > 1200 && this.lifetime < 2000){
     stroke(128, 128, 128, 200)
-  }else if(this.lifetime > 2000){
+  }else if(this.lifetime > 5000){
     stroke(this.randomColour)
   }
-  if(this.lifetime > 3000 && this.logged == false){
+  if(this.lifetime > 5000 && this.logged == false){
     console.log("successful orbit")
     particleData.push(this.data)
     console.log(particleData)
