@@ -28,7 +28,7 @@ var iB = 100
 var iG = 1
 
 //rate at which perlin noise function is looped through
-var speed = 0.04
+var speed = 0.02
 
 function setup() {
   createCanvas(1920, 1080)
