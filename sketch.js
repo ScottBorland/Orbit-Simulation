@@ -1,204 +1,115 @@
 
-// var counter = 100
+var counter = 0
 //
 //
 // particles = []
 planets = []
-//
-// planetData = []
-// particleData = []
-//
-// var analysisMode = false
-//
-// var spawnParticles = true
-//
-// //perlin noise variables
-// var xr = 0.0
-// var xg = 100.0
-// var xb = 2000.0
-//
-// //arbitrary values
-// var iR = 1000
-// var iB = 100
-// var iG = 1
-//
-// //rate at which perlin noise function is looped through
-// var speed = 0.02
+majorPlanets = []
+
+planetData = []
+
+var offset;
+var planetToFocus = 0
+
+var zoom = 1.00;
+var zMin = 0.005;
+var zMax = 9.00;
+var sensitivity = 0.0002;
+
+var universeSize = 5000;
 
 function setup() {
-  createCanvas(1600, 800)
+  frameRate(200)
+  createCanvas(1920, 1080)
   background(100)
+  ellipse(0, 0, 10)
+  offset = createVector(width / 2, height / 2);
 
-  //this can be played around with, scale is between 1 and 4, fallout is from 0 to 1. (4, 1) gives a very washed out look. (2, 0.2) seems the best so far.
-  //noiseDetail(2, 0.2)
+  majorPlanets.push(new planet(width / 2, height / 2, 0, 0, 200))
+  majorPlanets[0].massToSizeScalerIndividual = 1
 
-  for(var i = 0; i < 2; i++){
-    planets.push(new planet(random(200, windowWidth - 200), random(200, windowHeight-200), random(-5, 5), random(-5, 5), random(20)))
+  for(var i = 0; i < 100; i++){
+    planets.push(new planet(random(200, width - 200), random(200, height-200), random(-0.5, 0.5), random(-0.5, 0.5), random(20), false))
   }
+}
+
+function spawnPlanet(){
+  //planets.push(new planet(random(200, windowWidth - 200), random(200, windowHeight-200), random(-5, 5), random(-5, 5), random(20)))
+  //planets.push(new planet(random(-universeSize, universeSize), random(-universeSize, universeSize), random(-5, 5), random(-5, 5), random(20)))
+  planets.push(new planet(random(-universeSize, universeSize), random(-universeSize, universeSize), random(-5, 5), random(-5, 5), random(10), false))
 }
 
 function draw() {
   background(100)
-  for(var i = 0; i < planets.length; i++){
-    planets[i].update()
-    planets[i].display()
-    planets[i].applyGravity(planets)
+
+  translate(width/2, height/2)
+  scale(zoom)
+  translate(-width/2, -height/2)
+
+  translate(width / 2 - offset.x, height / 2 - offset.y)
+
+  for(var i = 0; i < majorPlanets.length; i++){
+    //majorPlanets[i].update()
+    majorPlanets[i].display()
+    majorPlanets[i].applyGravity(planets)
   }
 
-  //perlin noise
-  // var rx = xr + iR;
-  // var gx = xg + iG;
-  // var bx = xb + iB;
-  //change these values to tint the colour
-  // r = map(noise(rx, 1), 0, 1, 0, 255);
-  // g = map(noise(gx, 1), 0, 1, 0, 255);
-  // b = map(noise(bx, 1), 0, 1, 0, 255);
-  //
-  // xr += speed;
-  // xg += speed;
-  // xb += speed;
+  for(var i = 0; i < planets.length; i++){
+    planets[i].update()
+    planets[i].destroyOnEdges()
+    planets[i].display()
+    planets[i].applyGravity(majorPlanets)
+    planets[i].storeData()
+  }
 
-  //translate(mouseX, mouseY)
+  focusPlanet()
+  planetDestructionAndBirth()
+
+  // if(counter % 50 == 0){
+  //   spawnPlanet()
+  // }
+  // counter ++
 }
 
-// function windowResized() {
-//   resizeCanvas(windowWidth -15, windowHeight - 200)
-// }
+function mouseWheel(event) {
+  zoom -= sensitivity * event.delta;
+  zoom = constrain(zoom, zMin, zMax);
+  //uncomment to block page scrolling
+  return false;
+}
 
-/*function mouseDragged(){
-    if(mouseButton === LEFT && counter % 1 == 0){
-        let newParticle = new particle(mouseX, mouseY, random(5), random(5))
-        particles.push(newParticle)
+  function planetDestructionAndBirth(){
+    for(var i = 0; i < planets.length; i++){
+      if(planets[i].destroy){
+        planets.splice(i, 1)
+        spawnPlanet()
+      }
     }
-}*/
+  }
 
-// function analyse(){
-//     analysisMode = true
-//     planets.splice(0, planets.length)
-//     particles.splice(0, particles.length)
-//     background(0, 0, 0)
-//     spawnParticles = false;
-//     for(var i = 0; i < planetData.length; i++){
-//       let newPlanet = new planet(planetData[i][0].x, planetData[i][0].y, planetData[i][1], true)
-//       planets.push(newPlanet)
-//       planets[i].colour = planetData[i][2]
-//     }
-//     particleWaitingList = []
-//     for(var i = 0; i < particleData.length; i++){
-//       let newParticle = new particle(particleData[i][0].x, particleData[i][0].y, particleData[i][1].x, particleData[i][1].y, true)
-//       particleWaitingList.push(newParticle)
-//     }
-// }
-//
-// function keyPressed(){
-//     if(keyCode == 78 && analysisMode){
-//       background(0, 0, 0)
-//       planets.splice(0, planets.length)
-//       particles.splice(0, particles.length)
-//       for(var i = 0; i < planetData.length; i++){
-//         let newPlanet = new planet(planetData[i][0].x, planetData[i][0].y, planetData[i][1], true)
-//         planets.push(newPlanet)
-//         planets[i].colour = planetData[i][2]
-//       }
-//       if(particleWaitingList.length > 1){
-//       particles.push(particleWaitingList[0])
-//       //console.log(particles)
-//       particleWaitingList.splice(0, 1)
-//     }else{
-//       console.log("Empty waiting list")
-//     }
-//   }else if(keyCode == 82){
-//     analyse()
-//   }
-// }
+function mousePressed(){
+    if(mouseButton === LEFT){
+        changeFocusPlanet()
+    }
+  }
 
+function changeFocusPlanet(){
+  //if(planetToFocus < planets.length - 1){
+  if(planetToFocus < majorPlanets.length -1){
+  planetToFocus += 1
+}else{
+  planetToFocus = 0
+  }
+}
 
-// function particle(x, y, velX, velY, redrawn){
-//   this.position = createVector(x, y)
-//   this.velocity = createVector(velX, velY)
-//   this.acceleration = createVector(0, 0)
-//   this.maxSpeed = 10
-//   this.angle = 0
-//
-//   this.redrawn = redrawn
-//
-//   if(!this.redrawn){
-//   this.logged = false
-//   this.data = []
-//   this.data.push(this.position)
-//   if(this.position.y < 100){
-//     console.log("bug")
-//   }
-//   this.data.push(this.velocity)
-//   }else{
-//     this.logged = true
-//   }
-//
-//   this.trail = []
-//   this.randomColour = color(random(255), random(255), random(255))
-//
-//   this.lifetime = 0
-//
-//   this.hitedge = -2
-//   this.destroy = false
-//
-//   this.update = function(){
-//     var pos = createVector(this.position.x, this.position.y)
-//     this.trail.push(pos)
-//     this.velocity.add(this.acceleration)
-//     this.velocity.mult(speedMultiplier)
-//     this.velocity.limit(this.maxSpeed)
-//
-//     this.position.add(this.velocity)
-//     this.acceleration.mult(0)
-//     this.lifetime ++
-//   }
-//
-//   this.applyForce = function(force){
-//     if(force.mag() > 100 || (force.mag() != 0 && force.mag() < 0.002)){
-//       this.destroy = true
-//     }
-//     this.acceleration.add(force)
-//   }
-//
-//   this.display = function(){
-//
-//   //translate(offset)
-//   if(this.trail.length > 1){
-//   let index = this.trail.length - 1
-//   if(this.redrawn){
-//     let c = color(r, g, b)
-//     stroke(c)
-//     //stroke(this.randomColour)
-//   }else{
-//     stroke(128, 128, 128, 50)
-//   }
-//
-//   line(this.position.x, this.position.y, this.trail[index].x, this.trail[index].y)
-//
-//   if(!this.redrawn){
-//   if(this.lifetime < 600){
-//     let c = color(128, 128, 128, 50)
-//     stroke(c);
-//   }
-//   else if(this.lifetime > 600 && this.lifetime < 1200){
-//     stroke(128, 128, 128, 100)
-//   } else if(this.lifetime > 1200 && this.lifetime < 2000){
-//     stroke(128, 128, 128, 200)
-//   }else if(this.lifetime > 2000){
-//     stroke(this.randomColour)
-//   }
-//   if(this.lifetime > 3000 && this.logged == false){
-//     console.log("successful orbit")
-//     particleData.push(this.data)
-//     //console.log(particleData)
-//     this.logged = true;
-//   }
-//   line(this.position.x, this.position.y, this.trail[index].x, this.trail[index].y)
-// }else{
-//   stroke(this.randomColour)
-//     }
-//   }
-// }
-
-// }
+function focusPlanet(){
+  //if(planetToFocus < planets.length){
+  if(planetToFocus < majorPlanets.length){
+  //offset = createVector(planets[planetToFocus].position.x, planets[planetToFocus].position.y)
+  offset = createVector(majorPlanets[planetToFocus].position.x, majorPlanets[planetToFocus].position.y)
+}else{
+  //offset = createVector(planets[0].position.x, planets[0].position.y)
+  planetToFocus = 0
+  offset = createVector(majorPlanets[planetToFocus].position.x, majorPlanets[planetToFocus].position.y)
+  }
+}
